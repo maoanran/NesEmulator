@@ -1,0 +1,11 @@
+{
+  "name": "NesEmulator",
+  "version": "1.0.0",
+  "main": "main.js",
+  "repository": {
+    "url": "git@github.com:maoanran/NesEmulator.git",
+    "type": "git"
+  },
+  "author": "Anran <maoanran@gmail.com>",
+  "license": "MIT"
+}
