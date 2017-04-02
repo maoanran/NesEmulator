@@ -38,3 +38,7 @@ jspm_packages
 
 # idea
 .idea
+
+dump.rdb
+yarn.lock
+
