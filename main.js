@@ -1,4 +1,4 @@
 (function () {
     var NES = require('./NES/NES');
-    new NES().load('./rom/smb.nes');
+    new NES().load('./test/nestest.nes');
 })();

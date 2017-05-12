@@ -5,19 +5,16 @@
     const ROM = require('./ROM');
 
     function NES() {
-        this.cpu = new CPU(this);
+        
     }
 
     NES.prototype.load = function (rom) {
-        this.reset();
         fs.readFile(rom, (err, data) => {
             this.rom = new ROM(data);
-            this.init();
+            this.cpu = new CPU(this);
+            this.cpu.powerUp();
+            this.cpu.run();
         });
-    };
-
-    NES.prototype.init = function () {
-        
     };
 
     NES.prototype.reset = function () {

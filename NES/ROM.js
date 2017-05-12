@@ -18,7 +18,7 @@ const {F} = require('../F/F');
         this.data = new Uint8Array(raw.slice(16, raw.length));
         this.parseData();
 
-        console.log(this);
+        this.raw = raw;
     }
 
     ROM.prototype.parseHeader = function () {
