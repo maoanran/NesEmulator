@@ -41,7 +41,6 @@ const {F} = require('../F/F');
     // todo: PlayChoice INST-ROM parse
     // todo: PlayChoice PROM parse
     ROM.prototype.parseData = function () {
-        // console.log(this.flags6 & 0b100);
         this.prgBank = this.data.subarray(0, this.sizeOfPRGRomIn16KB || this.sizeOfPRGRomIn8KB);
         this.chrBank = this.data.subarray(this.sizeOfPRGRomIn16KB || this.sizeOfPRGRomIn8KB, (this.sizeOfPRGRomIn16KB || this.sizeOfPRGRomIn8KB) + this.sizeOfCHRRomIn8KB);
         // const titleData = new Uint8Array(raw, 0, 16);

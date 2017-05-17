@@ -1,5 +1,7 @@
 (function () {
 
+    const Memory = require('./MEMORY');
+
     function CPU(nes) {
         this.nes = nes;
         this.rom = this.nes.rom;
@@ -35,21 +37,14 @@
         this.FLAG_V = false;
         this.FLAG_N = false;
 
-        // ============= memory =============
-        // http://wiki.nesdev.com/w/index.php/CPU_memory_map
-        this.ram = Array(0x10000).fill(0xff);
-        this.ram[0x4017] = 0x00;
-        this.ram[0x4015] = 0x00;
-        for (let i = 0x4000; i < 0x400F; i++) {
-            this.ram[i] = 0x00;
-        }
+        this.memory = new Memory(this.rom);
         // todo: noise channel LFSR = $0000 The first time the LFSR is clocked from the all-0s state, it will shift in a 1.
 
         this.cycles = 0;
     };
 
     CPU.prototype._exec = function (opcode) {
-
+        console.log(opcode)
     };
 
 
@@ -69,9 +64,11 @@
 
 
     CPU.prototype.run = function () {
-
     };
 
+    CPU.prototype.jmp = function () {
+
+    };
 
     CPU.prototype.reset = function () {
     };
