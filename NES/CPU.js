@@ -4,7 +4,6 @@
 
     function CPU(nes) {
         this.nes = nes;
-        this.rom = this.nes.rom;
     }
 
     CPU.prototype.powerUp = function() {
@@ -37,8 +36,11 @@
         this.FLAG_V = false;
         this.FLAG_N = false;
 
-        this.memory = new Memory(this.rom);
+        this.memory = new Memory(this.nes.cartridge);
         // todo: noise channel LFSR = $0000 The first time the LFSR is clocked from the all-0s state, it will shift in a 1.
+
+        console.log(this.memory.read(0xc000).toString(16))
+        console.log(this.memory.read(0x8000).toString(16))
 
         this.cycles = 0;
     };
