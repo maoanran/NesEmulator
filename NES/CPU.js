@@ -6,73 +6,271 @@
         this.nes = nes;
     }
 
-    CPU.prototype.powerUp = function() {
 
-        // ============= registers =============
+    function pad(width, string, padding) {
+        return (width <= string.length) ? string : pad(width, padding + string, padding)
+    }
+
+    CPU.prototype = {
+        powerUp: function () {
+            // ============= registers =============
+            // Accumulator
+            this.reg_a = 0;
+
+            // Indexes
+            this.reg_x = 0;
+            this.reg_y = 0;
+
+            // Program Counter
+            this.reg_pc = 0xc000;
+
+            // Stack Pointer
+            this.reg_s = 0xFD;
+
+            //Status Register
+            // 7  bit  0
+            // ---- ----
+            // NVss DIZC
+            this.reg_p = 0x34;
+
+            // http://wiki.nesdev.com/w/index.php/CPU_status_flag_behavior
+            this.flag_c = false;
+            this.flag_z = false;
+            this.flag_i = true;
+            this.flag_d = false;
+            this.flag_v = false;
+            this.flag_n = false;
+
+            this.memory = new Memory(this.nes.cartridge);
+            // todo: noise channel LFSR = $0000 The first time the LFSR is clocked from the all-0s state, it will shift in a 1.
+
+            this.cycles = 0;
+        },
+
+        _exec: function (opcode) {
+            const regPc = this.reg_pc.toString(16);
+            const log = regPc.toString(16) + '\t' + opcode.toString(16) + '\t';
+            const log2 = '\t' + `A: ${this.reg_a} X:${this.reg_x} Y:${this.reg_y} P:${this.reg_p} SP:${this.reg_s.toString(16)} CYC:${this.cycles}`;
+            switch (opcode) {
+                case 0x4c:
+                    this._abs();
+                    this._jmp();
+                    this.cycles += 3 * 3;
+                    break;
+                case 0xA2:
+                    this._imm();
+                    this._ldx();
+                    this.cycles += 2 * 3;
+                    break;
+                case 0x86:
+                    this._zp();
+                    this._stx();
+                    this.cycles += 3 * 3;
+                    break;
+                default:
+            }
+            console.log(log + pad(4, this.address.toString(16), ' ') + log2);
+        },
+
+        // ============= op codes =============
+        _adc: function () {
+        },
+        _and: function () {
+        },
+        _asl: function () {
+        },
+        _bcc: function () {
+        },
+        _bcs: function () {
+        },
+        _beq: function () {
+        },
+        _bit: function () {
+        },
+        _bmi: function () {
+        },
+        _bne: function () {
+        },
+        _bpl: function () {
+        },
+        _bvc: function () {
+        },
+        _bvs: function () {
+        },
+        _clc: function () {
+        },
+        _cld: function () {
+        },
+        _clv: function () {
+        },
+        _cmp: function () {
+        },
+        _cpx: function () {
+        },
+        _cpy: function () {
+        },
+        _dcp: function () {
+        },
+        _dec: function () {
+        },
+        _dex: function () {
+        },
+        _dey: function () {
+        },
+        _eor: function () {
+        },
+        _inc: function () {
+        },
+        _inx: function () {
+        },
+        _iny: function () {
+        },
+        _isb: function () {
+        },
+        _jmp: function () {
+            this.reg_pc = this.address;
+        },
+        _jsr: function () {
+        },
+        _lax: function () {
+        },
+        _lda: function () {
+        },
+        _ldx: function () {
+            this.reg_x = this.memory.read(this.address);
+        },
+        _ldy: function () {
+        },
+        _lsr: function () {
+        },
+        _nop: function () {
+        },
+        _ora: function () {
+        },
+        _pha: function () {
+        },
+        _php: function () {
+        },
+        _pla: function () {
+        },
+        _plp: function () {
+        },
+        _rla: function () {
+        },
+        _rol: function () {
+        },
+        _ror: function () {
+        },
+        _rra: function () {
+        },
+        _rti: function () {
+        },
+        _rts: function () {
+        },
+        _sax: function () {
+        },
+        _sbc: function () {
+        },
+        _sec: function () {
+        },
+        _sed: function () {
+        },
+        _sei: function () {
+        },
+        _slo: function () {
+        },
+        _sre: function () {
+        },
+        _sta: function () {
+        },
+        _stx: function () {
+            this.memory.write(this.reg_x);
+        },
+        _sty: function () {
+        },
+        _tax: function () {
+        },
+        _tay: function () {
+        },
+        _tsx: function () {
+        },
+        _txa: function () {
+        },
+        _txs: function () {
+        },
+        _tya: function () {
+        },
+
+        // ============= addressing modes =============
         // Accumulator
-        this.REG_A = 0;
+        _a: function () {
 
-        // Indexes
-        this.REG_X = 0;
-        this.REG_Y = 0;
+        },
 
-        // Program Counter
-        this.REG_PC = null;
+        // absolute
+        _abs: function () {
+            const high = this.memory.read(this.reg_pc + 2) << 8,
+                low = this.memory.read(this.reg_pc + 1);
 
-        // Stack Pointer
-        this.REG_S = 0xFD;
+            this.address = high | low;
+            this.reg_pc += 3;
+        },
 
-        //Status Register
-        // 7  bit  0
-        // ---- ----
-        // NVss DIZC
-        this.REG_P = 0x34;
+        // absolute, X-indexed
+        _abx: function () {
+        },
 
-        // http://wiki.nesdev.com/w/index.php/CPU_status_flag_behavior
-        this.FLAG_C = false;
-        this.FLAG_Z = false;
-        this.FLAG_I = true;
-        this.FLAG_D = false;
-        this.FLAG_V = false;
-        this.FLAG_N = false;
+        // absolute, Y-indexed
+        _aby: function () {
+        },
 
-        this.memory = new Memory(this.nes.cartridge);
-        // todo: noise channel LFSR = $0000 The first time the LFSR is clocked from the all-0s state, it will shift in a 1.
+        // immediate
+        _imm: function () {
+            this.address = this.memory.read(this.reg_pc + 1);
+            this.reg_pc += 2;
+        },
 
-        console.log(this.memory.read(0xc000).toString(16))
-        console.log(this.memory.read(0x8000).toString(16))
+        // implied
+        _impl: function () {
+        },
 
-        this.cycles = 0;
-    };
+        // indirect
+        _ind: function () {
+        },
 
-    CPU.prototype._exec = function (opcode) {
-        console.log(opcode)
-    };
+        // X-indexed, indirect
+        _izx: function () {
+        },
 
+        // indirect, Y-indexed
+        _izy: function () {
 
-    CPU.prototype._a = function() {};
-    CPU.prototype._abs = function() {};
-    CPU.prototype._abx = function() {};
-    CPU.prototype._aby = function() {};
-    CPU.prototype._imm = function() {};
-    CPU.prototype._impl = function() {};
-    CPU.prototype._ind = function() {};
-    CPU.prototype._izx = function() {};
-    CPU.prototype._izy = function() {};
-    CPU.prototype._rel = function() {};
-    CPU.prototype._zp = function() {};
-    CPU.prototype._zpx = function() {};
-    CPU.prototype._zpy = function() {};
+        },
 
+        // relative
+        _rel: function () {
+        },
 
-    CPU.prototype.run = function () {
-    };
+        // zeropage
+        _zp: function () {
+            this.address = this.memory.read(this.reg_pc + 1);
+            this.reg_pc += 2;
+        },
 
-    CPU.prototype.jmp = function () {
+        // zeropage, X-indexed
+        _zpx: function () {
+        },
 
-    };
+        // zeropage, Y-indexed
+        _zpy: function () {
+        },
 
-    CPU.prototype.reset = function () {
+        tick: function () {
+            this._exec(this.memory.read(this.reg_pc))
+        },
+
+        reset: function () {
+        }
     };
 
     module.exports = CPU;

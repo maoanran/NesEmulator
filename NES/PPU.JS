@@ -3,5 +3,7 @@
 
     }
 
+    PPU.prototype.tick = function() {}
+
     module.exports = PPU;
 })();

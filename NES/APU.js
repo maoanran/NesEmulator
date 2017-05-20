@@ -3,5 +3,7 @@
 
     }
 
+    APU.prototype.tick = function() {}
+
     module.exports = APU;
 })();

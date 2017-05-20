@@ -2,6 +2,8 @@
     const fs = require('fs');
 
     const CPU = require('./CPU');
+    const PPU = require('./PPU');
+    const APU = require('./APU');
     const CARTRIDGE = require('./CARTRIDGE');
 
     function NES() {
@@ -12,8 +14,20 @@
         fs.readFile(cartridge, (err, data) => {
             this.cartridge = new CARTRIDGE(data);
             this.cpu = new CPU(this);
+            this.ppu = new PPU();
+            this.apu = new APU();
             this.cpu.powerUp();
-            this.cpu.run();
+
+            let i = 0;
+            while (i++ < 16) {
+                this.cpu.tick();
+
+                this.ppu.tick();
+                this.ppu.tick();
+                this.ppu.tick();
+
+                this.apu.tick();
+            }
         });
     };
 
