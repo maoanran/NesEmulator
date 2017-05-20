@@ -2,7 +2,7 @@
     function Memory(cartridge) {
         // ============= memory =============
         // http://wiki.nesdev.com/w/index.php/CPU_memory_map
-        this.Memory = new Array(0x8000).fill(0xff);
+        this.Memory = new Array(0x8000).fill(0x00);
 
         // http://wiki.nesdev.com/w/index.php/CPU_power_up_state
         this.Memory[0x4017] = 0x00;
