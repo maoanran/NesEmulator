@@ -28,11 +28,6 @@
             this.reg_s = 0xFD;
 
             //Status Register
-            // 7  bit  0
-            // ---- ----
-            // NVss DIZC
-            this.reg_p = 0x34;
-
             // http://wiki.nesdev.com/w/index.php/CPU_status_flag_behavior
             this.flag_c = false;
             this.flag_z = false;
@@ -41,16 +36,32 @@
             this.flag_v = false;
             this.flag_n = false;
 
+            // 7  bit  0
+            // ---- ----
+            // NVss DIZC
+            Object.defineProperty(this, 'reg_p', {
+                get: function () {
+                    return (this.flag_n ? 0x80 : 0x00) |
+                        (this.flag_v ? 0x40 : 0x00) |
+                        0x20 |
+                        0x00 |
+                        (this.flag_d ? 0x08 : 0x00) |
+                        (this.flag_i ? 0x04 : 0x00) |
+                        (this.flag_z ? 0x02 : 0x00) |
+                        (this.flag_c ? 0x01 : 0x00);
+                }
+            });
+
+
             this.memory = new Memory(this.nes.cartridge);
             // todo: noise channel LFSR = $0000 The first time the LFSR is clocked from the all-0s state, it will shift in a 1.
-
             this.cycles = 0;
         },
 
         _exec: function (opcode) {
             const regPc = this.reg_pc.toString(16);
             const log = regPc.toString(16) + '\t' + opcode.toString(16) + '\t';
-            const log2 = '\t' + `A: ${this.reg_a} X:${this.reg_x} Y:${this.reg_y} P:${this.reg_p} SP:${this.reg_s.toString(16)} CYC:${this.cycles}`;
+            const log2 = '\t' + `A: ${this.reg_a} X:${this.reg_x} Y:${this.reg_y} P:${this.reg_p.toString(16)} SP:${this.reg_s.toString(16)} CYC:${this.cycles}`;
             switch (opcode) {
                 // ============= 00 block =============
                 case 0x00:
@@ -66,10 +77,16 @@
                 case 0x14:
                     break;
                 case 0x18:
+                    this._impl();
+                    this._clc();
+                    this._burn(2)
                     break;
                 case 0x1c:
                     break;
                 case 0x20:
+                    this._abs();
+                    this._jsr();
+                    this._burn(6);
                     break;
                 case 0x24:
                     break;
@@ -82,6 +99,9 @@
                 case 0x34:
                     break;
                 case 0x38:
+                    this._impl();
+                    this._sec();
+                    this._burn(2);
                     break;
                 case 0x3c:
                     break;
@@ -94,7 +114,7 @@
                 case 0x4c:
                     this._abs();
                     this._jmp();
-                    this.cycles += 3 * 3;
+                    this._burn(3);
                     break;
                 case 0x50:
                     break;
@@ -145,6 +165,9 @@
                 case 0xac:
                     break;
                 case 0xb0:
+                    this._rel();
+                    this._bcs();
+                    this._burn(2);
                     break;
                 case 0xb4:
                     break;
@@ -383,7 +406,7 @@
                 case 0x86:
                     this._zp();
                     this._stx();
-                    this.cycles += 3 * 3;
+                    this._burn(3);
                     break;
                 case 0x8a:
                     break;
@@ -400,7 +423,7 @@
                 case 0xa2:
                     this._imm();
                     this._ldx();
-                    this.cycles += 2 * 3;
+                    this._burn(2);
                     break;
                 case 0xa6:
                     break;
@@ -437,6 +460,9 @@
                 case 0xe6:
                     break;
                 case 0xea:
+                    this._impl();
+                    this._nop();
+                    this._burn(2);
                     break;
                 case 0xee:
                     break;
@@ -582,6 +608,22 @@
             console.log(log + pad(4, this.address.toString(16), ' ') + log2);
         },
 
+        _burn: function (cyc) {
+            this.cycles += cyc * 3;
+        },
+
+        _read: function () {
+            return this._peek(this.address);
+        },
+
+        _peek: function (address) {
+            return this.memory.read(address);
+        },
+
+        _write: function (address, value) {
+            this.memory.write(address, value);
+        },
+
         // ============= op codes =============
         _adc: function () {
         },
@@ -592,6 +634,13 @@
         _bcc: function () {
         },
         _bcs: function () {
+            if (this.flag_c) {
+                this.address += this._read() + 1;
+                this._burn((this.reg_pc & 0xFF00) !== (this.address & 0xFF00) ? 2 : 1);
+
+                // todo: why!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                this.reg_pc = this.address;
+            }
         },
         _beq: function () {
         },
@@ -608,6 +657,7 @@
         _bvs: function () {
         },
         _clc: function () {
+            this.flag_c = 0;
         },
         _cld: function () {
         },
@@ -641,19 +691,27 @@
             this.reg_pc = this.address;
         },
         _jsr: function () {
+            this._push((this.reg_pc - 1) >> 8 & 0xff);
+            this._push((this.reg_pc - 1) & 0xff);
+            this.reg_pc = this.address;
         },
         _lax: function () {
         },
         _lda: function () {
         },
         _ldx: function () {
-            this.reg_x = this.memory.read(this.address);
+            this.reg_x = this._read();
+
+            // todo: why?????
+            this.flag_n = (this.reg_x & 0x80) && 1;
+            this.flag_z = +(this.reg_x === 0);
         },
         _ldy: function () {
         },
         _lsr: function () {
         },
         _nop: function () {
+
         },
         _ora: function () {
         },
@@ -682,6 +740,8 @@
         _sbc: function () {
         },
         _sec: function () {
+            // todo: why???
+            this.flag_c = 1;
         },
         _sed: function () {
         },
@@ -694,7 +754,7 @@
         _sta: function () {
         },
         _stx: function () {
-            this.memory.write(this.reg_x);
+            this._write(this.reg_x);
         },
         _sty: function () {
         },
@@ -711,6 +771,15 @@
         _tya: function () {
         },
 
+        _pop: function () {
+            return this._peek(this.reg_s++);
+        },
+
+        _push: function (value) {
+            this._write(this.reg_s, value);
+            this.reg_s = (this.reg_s - 1) & 0xff;
+        },
+
         // ============= addressing modes =============
         // Accumulator
         _a: function () {
@@ -719,8 +788,8 @@
 
         // absolute
         _abs: function () {
-            const high = this.memory.read(this.reg_pc + 2) << 8,
-                low = this.memory.read(this.reg_pc + 1);
+            const high = this._peek(this.reg_pc + 2) << 8,
+                low = this._peek(this.reg_pc + 1);
 
             this.address = high | low;
             this.reg_pc += 3;
@@ -736,12 +805,14 @@
 
         // immediate
         _imm: function () {
-            this.address = this.memory.read(this.reg_pc + 1);
+            this.address = this._peek(this.reg_pc + 1);
             this.reg_pc += 2;
         },
 
         // implied
         _impl: function () {
+            this.address = '';
+            this.reg_pc += 1;
         },
 
         // indirect
@@ -759,24 +830,30 @@
 
         // relative
         _rel: function () {
+            this.address = this.reg_pc + 1;
+            this.reg_pc += 2;
         },
 
         // zeropage
         _zp: function () {
-            this.address = this.memory.read(this.reg_pc + 1);
+            this.address = this._peek(this.reg_pc + 1);
             this.reg_pc += 2;
         },
 
         // zeropage, X-indexed
         _zpx: function () {
+            this.address = this._peek(this.reg_pc + 1 + this.reg_x);
+            this.reg_pc += 2;
         },
 
         // zeropage, Y-indexed
         _zpy: function () {
+            this.address = this._peek(this.reg_pc + 1 + this.reg_y);
+            this.reg_pc += 2;
         },
 
         tick: function () {
-            this._exec(this.memory.read(this.reg_pc))
+            this._exec(this._peek(this.reg_pc))
         },
 
         reset: function () {
