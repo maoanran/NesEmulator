@@ -40,7 +40,7 @@
             // ---- ----
             // NVss DIZC
             Object.defineProperty(this, 'reg_p', {
-                get: function () {
+                get: () => {
                     return (this.flag_n ? 0x80 : 0x00) |
                         (this.flag_v ? 0x40 : 0x00) |
                         0x20 |
@@ -61,7 +61,7 @@
         _exec: function (opcode) {
             const regPc = this.reg_pc.toString(16);
             const log = regPc.toString(16) + '\t' + opcode.toString(16) + '\t';
-            const log2 = '\t' + `A: ${this.reg_a} X:${this.reg_x} Y:${this.reg_y} P:${this.reg_p.toString(16)} SP:${this.reg_s.toString(16)} CYC:${this.cycles}`;
+            const log2 = '\t' + `A: ${this.reg_a.toString(16)} X:${this.reg_x.toString(16)} Y:${this.reg_y.toString(16)} P:${this.reg_p.toString(16)} SP:${this.reg_s.toString(16)} CYC:${this.cycles}`;
             switch (opcode) {
                 // ============= 00 block =============
                 case 0x00:
@@ -89,6 +89,9 @@
                     this._burn(6);
                     break;
                 case 0x24:
+                    this._zp();
+                    this._bit();
+                    this._burn(3);
                     break;
                 case 0x28:
                     break;
@@ -117,6 +120,9 @@
                     this._burn(3);
                     break;
                 case 0x50:
+                    this._rel();
+                    this._bvc();
+                    this._burn(2);
                     break;
                 case 0x54:
                     break;
@@ -133,6 +139,9 @@
                 case 0x6c:
                     break;
                 case 0x70:
+                    this._rel();
+                    this._bvs();
+                    this._burn(2);
                     break;
                 case 0x74:
                     break;
@@ -149,6 +158,9 @@
                 case 0x8c:
                     break;
                 case 0x90:
+                    this._rel();
+                    this._bcc();
+                    this._burn(2);
                     break;
                 case 0x94:
                     break;
@@ -184,6 +196,9 @@
                 case 0xcc:
                     break;
                 case 0xd0:
+                    this._rel();
+                    this._bne();
+                    this._burn(2);
                     break;
                 case 0xd4:
                     break;
@@ -200,6 +215,9 @@
                 case 0xec:
                     break;
                 case 0xf0:
+                    this._rel();
+                    this._beq();
+                    this._burn(2);
                     break;
                 case 0xf4:
                     break;
@@ -275,6 +293,9 @@
                 case 0x81:
                     break;
                 case 0x85:
+                    this._zp();
+                    this._sta();
+                    this._burn(3)
                     break;
                 case 0x89:
                     break;
@@ -293,6 +314,9 @@
                 case 0xa5:
                     break;
                 case 0xa9:
+                    this._imm();
+                    this._lda();
+                    this._burn(2);
                     break;
                 case 0xad:
                     break;
@@ -610,6 +634,7 @@
 
         _burn: function (cyc) {
             this.cycles += cyc * 3;
+            this.cycles %= 341;
         },
 
         _read: function () {
@@ -624,6 +649,16 @@
             this.memory.write(address, value);
         },
 
+        _branch: function (cond) {
+            if (cond) {
+                this.address += this._read() + 1;
+                this._burn((this.reg_pc & 0xFF00) !== (this.address & 0xFF00) ? 2 : 1);
+
+                // todo: why!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                this.reg_pc = this.address;
+            }
+        },
+
         // ============= op codes =============
         _adc: function () {
         },
@@ -632,29 +667,32 @@
         _asl: function () {
         },
         _bcc: function () {
+            this._branch(this.flag_c === 0);
         },
         _bcs: function () {
-            if (this.flag_c) {
-                this.address += this._read() + 1;
-                this._burn((this.reg_pc & 0xFF00) !== (this.address & 0xFF00) ? 2 : 1);
-
-                // todo: why!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                this.reg_pc = this.address;
-            }
+            this._branch(this.flag_c === 1);
         },
         _beq: function () {
+            this._branch(this.flag_z === 1);
         },
         _bit: function () {
+            const val = this._read();
+            this.flag_n = (val & 0x80) && 1;
+            this.flag_v = (val & 0x40) && 1;
+            this.flag_z = +((val & this.reg_a) === 0);
         },
         _bmi: function () {
         },
         _bne: function () {
+            this._branch(this.flag_z === 0);
         },
         _bpl: function () {
         },
         _bvc: function () {
+            this._branch(this.flag_v === 0);
         },
         _bvs: function () {
+            this._branch(this.flag_v === 1);
         },
         _clc: function () {
             this.flag_c = 0;
@@ -698,11 +736,12 @@
         _lax: function () {
         },
         _lda: function () {
+            this.reg_a = this._read();
+            this.flag_n = (this.reg_a & 0x80) && 1;
+            this.flag_z = +(this.reg_a === 0);
         },
         _ldx: function () {
             this.reg_x = this._read();
-
-            // todo: why?????
             this.flag_n = (this.reg_x & 0x80) && 1;
             this.flag_z = +(this.reg_x === 0);
         },
@@ -752,9 +791,10 @@
         _sre: function () {
         },
         _sta: function () {
+            this._write(this.address, this.reg_a);
         },
         _stx: function () {
-            this._write(this.reg_x);
+            this._write(this.address, this.reg_x);
         },
         _sty: function () {
         },
@@ -805,7 +845,7 @@
 
         // immediate
         _imm: function () {
-            this.address = this._peek(this.reg_pc + 1);
+            this.address = this.reg_pc + 1;
             this.reg_pc += 2;
         },
 
