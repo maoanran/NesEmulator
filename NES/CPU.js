@@ -73,13 +73,16 @@
                 case 0x0c:
                     break;
                 case 0x10:
+                    this._rel();
+                    this._bpl();
+                    this._burn(2);
                     break;
                 case 0x14:
                     break;
                 case 0x18:
                     this._impl();
                     this._clc();
-                    this._burn(2)
+                    this._burn(2);
                     break;
                 case 0x1c:
                     break;
@@ -131,6 +134,9 @@
                 case 0x5c:
                     break;
                 case 0x60:
+                    this._impl();
+                    this._rts();
+                    this._burn(6);
                     break;
                 case 0x64:
                     break;
@@ -146,6 +152,9 @@
                 case 0x74:
                     break;
                 case 0x78:
+                    this._impl();
+                    this._sei();
+                    this._burn(2);
                     break;
                 case 0x7c:
                     break;
@@ -222,6 +231,9 @@
                 case 0xf4:
                     break;
                 case 0xf8:
+                    this._impl();
+                    this._sed();
+                    this._burn(2);
                     break;
                 case 0xfc:
                     break;
@@ -687,6 +699,7 @@
             this._branch(this.flag_z === 0);
         },
         _bpl: function () {
+            this._branch(this.flag_n === 0);
         },
         _bvc: function () {
             this._branch(this.flag_v === 0);
@@ -773,18 +786,23 @@
         _rti: function () {
         },
         _rts: function () {
+            const low = this._pop();
+            const high = this._pop();
+            this.reg_pc = (high << 8) | low;
+            this.reg_pc++;
         },
         _sax: function () {
         },
         _sbc: function () {
         },
         _sec: function () {
-            // todo: why???
             this.flag_c = 1;
         },
         _sed: function () {
+            this.flag_d = 1;
         },
         _sei: function () {
+            this.flag_i = 1;
         },
         _slo: function () {
         },
@@ -812,7 +830,7 @@
         },
 
         _pop: function () {
-            return this._peek(this.reg_s++);
+            return this._peek(++this.reg_s);
         },
 
         _push: function (value) {

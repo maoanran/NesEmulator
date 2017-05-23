@@ -19,7 +19,7 @@
             this.cpu.powerUp();
 
             let i = 0;
-            while (i++ < 64) {
+            while (i++ < 128) {
                 this.cpu.tick();
 
                 this.ppu.tick();
