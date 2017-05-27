@@ -216,6 +216,9 @@
                 case 0xb4:
                     break;
                 case 0xb8:
+                    this._impl();
+                    this._clv();
+                    this._burn(2);
                     break;
                 case 0xbc:
                     break;
@@ -269,6 +272,9 @@
                 case 0x05:
                     break;
                 case 0x09:
+                    this._imm();
+                    this._ora();
+                    this._burn(2);
                     break;
                 case 0x0d:
                     break;
@@ -707,10 +713,9 @@
         _adc: function () {
         },
         _and: function () {
-            const val = this._read();
-            this.flag_n = (val & 0x80) & 1;
-            this.flag_z = +(val === 0);
-            this.reg_a = val & this.reg_a;
+            this.reg_a &= this._read();
+            this.flag_n = (this.reg_a & 0x80) && 1;
+            this.flag_z = +(this.reg_a === 0);
         },
         _asl: function () {
         },
@@ -751,6 +756,7 @@
             this.flag_d = 0;
         },
         _clv: function () {
+            this.flag_v = 0;
         },
         _cmp: function () {
             const val = this.reg_a - this._read();
@@ -809,6 +815,10 @@
 
         },
         _ora: function () {
+            const val = this._read();
+            this.reg_a |= val;
+            this.flag_n = (this.reg_a & 0x80) && 1;
+            this.flag_z = +(this.reg_a === 0);
         },
         _pha: function () {
             this._push(this.reg_a);
