@@ -709,13 +709,25 @@
             }
         },
 
+        _setN: function (val) {
+            this.flag_n = (val & 0x80) && 1;
+        },
+
+        _setZ: function (val) {
+            this.flag_z = +(val === 0);
+        },
+
+        _setV: function (val) {
+            this.flag_v = (val & 0x40) && 1;
+        },
+
         // ============= op codes =============
         _adc: function () {
         },
         _and: function () {
             this.reg_a &= this._read();
-            this.flag_n = (this.reg_a & 0x80) && 1;
-            this.flag_z = +(this.reg_a === 0);
+            this._setN(this.reg_a);
+            this._setZ(this.reg_a);
         },
         _asl: function () {
         },
@@ -730,9 +742,9 @@
         },
         _bit: function () {
             const val = this._read();
-            this.flag_n = (val & 0x80) && 1;
-            this.flag_v = (val & 0x40) && 1;
-            this.flag_z = +((val & this.reg_a) === 0);
+            this._setN(val);
+            this._setV(val);
+            this._setZ(val);
         },
         _bmi: function () {
             this._branch(this.flag_n === 1);
@@ -761,7 +773,8 @@
         _cmp: function () {
             const val = this.reg_a - this._read();
             this.flag_n = (val & 0x80) && 1;
-            this.flag_z = +(val === 0);
+            this._setN(val);
+            this._setZ(val);
             // todo: why??
             this.flag_c = +(this.reg_a >= val);
         },
@@ -799,13 +812,13 @@
         },
         _lda: function () {
             this.reg_a = this._read();
-            this.flag_n = (this.reg_a & 0x80) && 1;
-            this.flag_z = +(this.reg_a === 0);
+            this._setN(this.reg_a);
+            this._setZ(this.reg_a);
         },
         _ldx: function () {
             this.reg_x = this._read();
-            this.flag_n = (this.reg_x & 0x80) && 1;
-            this.flag_z = +(this.reg_x === 0);
+            this._setN(this.reg_x);
+            this._setZ(this.reg_x);
         },
         _ldy: function () {
         },
@@ -815,10 +828,9 @@
 
         },
         _ora: function () {
-            const val = this._read();
-            this.reg_a |= val;
-            this.flag_n = (this.reg_a & 0x80) && 1;
-            this.flag_z = +(this.reg_a === 0);
+            this.reg_a |= this._read();
+            this._setN(this.reg_a);
+            this._setZ(this.reg_a);
         },
         _pha: function () {
             this._push(this.reg_a);
@@ -829,13 +841,11 @@
         },
         _pla: function () {
             this.reg_a = this._pop();
-            this.flag_n = (this.reg_a & 0x80) && 1;
-            this.flag_z = +(this.reg_a === 0);
-
+            this._setN(this.reg_a);
+            this._setZ(this.reg_a);
         },
         _plp: function () {
-            const value = this._pop();
-            this.reg_p = value;
+            this.reg_p = this._pop();
         },
         _rla: function () {
         },
