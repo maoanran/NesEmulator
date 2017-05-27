@@ -49,6 +49,14 @@
                         (this.flag_i ? 0x04 : 0x00) |
                         (this.flag_z ? 0x02 : 0x00) |
                         (this.flag_c ? 0x01 : 0x00);
+                },
+                set: (val) => {
+                    this.flag_n = +(val & 0x80);
+                    this.flag_v = +(val & 0x40);
+                    this.flag_d = +(val & 0x08);
+                    this.flag_i = +(val & 0x04);
+                    this.flag_z = +(val & 0x02);
+                    this.flag_c = +(val & 0x01);
                 }
             });
 
@@ -69,6 +77,9 @@
                 case 0x04:
                     break;
                 case 0x08:
+                    this._impl();
+                    this._php();
+                    this._burn(3);
                     break;
                 case 0x0c:
                     break;
@@ -97,10 +108,16 @@
                     this._burn(3);
                     break;
                 case 0x28:
+                    this._impl();
+                    this._plp();
+                    this._burn(4);
                     break;
                 case 0x2c:
                     break;
                 case 0x30:
+                    this._rel();
+                    this._bmi();
+                    this._burn(2);
                     break;
                 case 0x34:
                     break;
@@ -116,6 +133,9 @@
                 case 0x44:
                     break;
                 case 0x48:
+                    this._impl();
+                    this._pha();
+                    this._burn(3);
                     break;
                 case 0x4c:
                     this._abs();
@@ -141,6 +161,9 @@
                 case 0x64:
                     break;
                 case 0x68:
+                    this._impl();
+                    this._pla();
+                    this._burn(4);
                     break;
                 case 0x6c:
                     break;
@@ -212,6 +235,9 @@
                 case 0xd4:
                     break;
                 case 0xd8:
+                    this._impl();
+                    this._cld();
+                    this._burn(2);
                     break;
                 case 0xdc:
                     break;
@@ -259,6 +285,9 @@
                 case 0x25:
                     break;
                 case 0x29:
+                    this._imm();
+                    this._and();
+                    this._burn(2);
                     break;
                 case 0x2d:
                     break;
@@ -345,6 +374,9 @@
                 case 0xc5:
                     break;
                 case 0xc9:
+                    this._imm();
+                    this._cmp();
+                    this._burn(2);
                     break;
                 case 0xcd:
                     break;
@@ -675,6 +707,10 @@
         _adc: function () {
         },
         _and: function () {
+            const val = this._read();
+            this.flag_n = (val & 0x80) & 1;
+            this.flag_z = +(val === 0);
+            this.reg_a = val & this.reg_a;
         },
         _asl: function () {
         },
@@ -694,6 +730,7 @@
             this.flag_z = +((val & this.reg_a) === 0);
         },
         _bmi: function () {
+            this._branch(this.flag_n === 1);
         },
         _bne: function () {
             this._branch(this.flag_z === 0);
@@ -711,10 +748,16 @@
             this.flag_c = 0;
         },
         _cld: function () {
+            this.flag_d = 0;
         },
         _clv: function () {
         },
         _cmp: function () {
+            const val = this.reg_a - this._read();
+            this.flag_n = (val & 0x80) && 1;
+            this.flag_z = +(val === 0);
+            // todo: why??
+            this.flag_c = +(this.reg_a >= val);
         },
         _cpx: function () {
         },
@@ -768,12 +811,21 @@
         _ora: function () {
         },
         _pha: function () {
+            this._push(this.reg_a);
         },
         _php: function () {
+            // todo: why 0x10 ??????????
+            this._push(this.reg_p | 0x10);
         },
         _pla: function () {
+            this.reg_a = this._pop();
+            this.flag_n = (this.reg_a & 0x80) && 1;
+            this.flag_z = +(this.reg_a === 0);
+
         },
         _plp: function () {
+            const value = this._pop();
+            this.reg_p = value;
         },
         _rla: function () {
         },
