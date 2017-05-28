@@ -745,9 +745,9 @@
         // ============= op codes =============
         _adc: function () {
             const val = this._read();
-            const tmp = this.reg_a + this.flag_c + val;
-            this._setZ(tmp & 0xff);
+            const tmp = this.reg_a + val + (this.flag_c ? 1 : 0);
             this._setN(tmp);
+            this._setZ(tmp & 0xff);
             this.flag_v = !((this.reg_a ^ val) & 0x80) && !!((this.reg_a ^ tmp) & 0x80);
             this.flag_c = (tmp > 0xff);
             this.reg_a = tmp;
@@ -913,8 +913,10 @@
             const tmp = this.reg_a - val - (this.flag_c ? 0 : 1);
             this._setN(tmp);
             this._setZ(tmp & 0xff);
-            this.flag_v = !((this.reg_a ^ val) & 0x80) && !!((this.reg_a ^ tmp) & 0x80);
-            this.flag_c = +(tmp < 0x100);
+            // this.flag_v = !((this.reg_a ^ tmp) & 0x80) && !!((this.reg_a ^ val) & 0x80);
+            // todo: why ??
+            this.flag_v = ((((this.reg_a ^ tmp) & 0x80) != 0 && ((this.reg_a ^ val) & 0x80) != 0) ? 1 : 0);
+            this.flag_c = tmp < 0x00 ? 0 : 1;
             this.reg_a = tmp & 0xff;
         },
         _sec: function () {
