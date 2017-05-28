@@ -310,6 +310,9 @@
                 case 0x45:
                     break;
                 case 0x49:
+                    this._imm();
+                    this._eor();
+                    this._burn(2);
                     break;
                 case 0x4d:
                     break;
@@ -326,6 +329,9 @@
                 case 0x65:
                     break;
                 case 0x69:
+                    this._imm();
+                    this._adc();
+                    this._burn(2);
                     break;
                 case 0x6d:
                     break;
@@ -723,6 +729,13 @@
 
         // ============= op codes =============
         _adc: function () {
+            const val = this._read();
+            const tmp = this.reg_a + this.flag_c + val;
+            this._setZ(tmp & 0xff);
+            this._setN(tmp);
+            this.flag_v = !((this.reg_a ^ val) & 0x80) && !!((this.reg_a ^ tmp) & 0x80);
+            this.flag_c = (tmp > 0xff);
+            this.reg_a = tmp;
         },
         _and: function () {
             this.reg_a &= this._read();
@@ -744,7 +757,7 @@
             const val = this._read();
             this._setN(val);
             this._setV(val);
-            this._setZ(val);
+            this._setZ(val & this.reg_a);
         },
         _bmi: function () {
             this._branch(this.flag_n === 1);
@@ -791,6 +804,9 @@
         _dey: function () {
         },
         _eor: function () {
+            this.reg_a ^= this._read();
+            this._setN(this.reg_a);
+            this._setZ(this.reg_a);
         },
         _inc: function () {
         },
