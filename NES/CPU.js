@@ -201,6 +201,9 @@
                 case 0x9c:
                     break;
                 case 0xa0:
+                    this._imm();
+                    this._ldy();
+                    this._burn(2);
                     break;
                 case 0xa4:
                     break;
@@ -223,10 +226,16 @@
                 case 0xbc:
                     break;
                 case 0xc0:
+                    this._imm();
+                    this._cpy();
+                    this._burn(2);
                     break;
                 case 0xc4:
                     break;
                 case 0xc8:
+                    this._impl();
+                    this._iny();
+                    this._burn(2);
                     break;
                 case 0xcc:
                     break;
@@ -245,6 +254,9 @@
                 case 0xdc:
                     break;
                 case 0xe0:
+                    this._imm();
+                    this._cpx();
+                    this._burn(2);
                     break;
                 case 0xe4:
                     break;
@@ -405,6 +417,9 @@
                 case 0xe5:
                     break;
                 case 0xe9:
+                    this._imm();
+                    this._sbc();
+                    this._burn(2);
                     break;
                 case 0xed:
                     break;
@@ -785,15 +800,21 @@
         },
         _cmp: function () {
             const val = this.reg_a - this._read();
-            this.flag_n = (val & 0x80) && 1;
+            this.flag_c = +(val >= 0);
             this._setN(val);
-            this._setZ(val);
-            // todo: why??
-            this.flag_c = +(this.reg_a >= val);
+            this._setZ(val & 0xff);
         },
         _cpx: function () {
+            const val = this.reg_x - this._read();
+            this.flag_c = +(val >= 0);
+            this._setN(val);
+            this._setZ(val & 0xff);
         },
         _cpy: function () {
+            const val = this.reg_y - this._read();
+            this.flag_c = +(val >= 0);
+            this._setN(val);
+            this._setZ(val & 0xff);
         },
         _dcp: function () {
         },
@@ -813,6 +834,9 @@
         _inx: function () {
         },
         _iny: function () {
+            this.reg_y = (this.reg_y + 1) & 0xff;
+            this._setN(this.reg_y);
+            this._setZ(this.reg_y);
         },
         _isb: function () {
         },
@@ -837,6 +861,9 @@
             this._setZ(this.reg_x);
         },
         _ldy: function () {
+            this.reg_y = this._read();
+            this._setN(this.reg_y);
+            this._setZ(this.reg_y);
         },
         _lsr: function () {
         },
@@ -882,6 +909,13 @@
         _sax: function () {
         },
         _sbc: function () {
+            const val = this._read();
+            const tmp = this.reg_a - val - (this.flag_c ? 0 : 1);
+            this._setN(tmp);
+            this._setZ(tmp & 0xff);
+            this.flag_v = !((this.reg_a ^ val) & 0x80) && !!((this.reg_a ^ tmp) & 0x80);
+            this.flag_c = +(tmp < 0x100);
+            this.reg_a = tmp & 0xff;
         },
         _sec: function () {
             this.flag_c = 1;
