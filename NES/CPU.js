@@ -186,6 +186,9 @@
                 case 0x84:
                     break;
                 case 0x88:
+                    this._impl();
+                    this._dey();
+                    this._burn(2);
                     break;
                 case 0x8c:
                     break;
@@ -197,6 +200,9 @@
                 case 0x94:
                     break;
                 case 0x98:
+                    this._impl();
+                    this._tya();
+                    this._burn(2);
                     break;
                 case 0x9c:
                     break;
@@ -208,6 +214,9 @@
                 case 0xa4:
                     break;
                 case 0xa8:
+                    this._impl();
+                    this._tay();
+                    this._burn(2);
                     break;
                 case 0xac:
                     break;
@@ -261,6 +270,9 @@
                 case 0xe4:
                     break;
                 case 0xe8:
+                    this._impl();
+                    this._inx();
+                    this._burn(2);
                     break;
                 case 0xec:
                     break;
@@ -384,6 +396,9 @@
                     this._burn(2);
                     break;
                 case 0xad:
+                    this._abs();
+                    this._lda();
+                    this._burn(4);
                     break;
                 case 0xb1:
                     break;
@@ -504,14 +519,23 @@
                     this._burn(3);
                     break;
                 case 0x8a:
+                    this._impl();
+                    this._txa();
+                    this._burn(2);
                     break;
                 case 0x8e:
+                    this._abs();
+                    this._stx();
+                    this._burn(4);
                     break;
                 case 0x92:
                     break;
                 case 0x96:
                     break;
                 case 0x9a:
+                    this._impl();
+                    this._txs();
+                    this._burn(2);
                     break;
                 case 0x9e:
                     break;
@@ -523,14 +547,23 @@
                 case 0xa6:
                     break;
                 case 0xaa:
+                    this._impl();
+                    this._tax();
+                    this._burn(2);
                     break;
                 case 0xae:
+                    this._abs();
+                    this._ldx();
+                    this._burn(4);
                     break;
                 case 0xb2:
                     break;
                 case 0xb6:
                     break;
                 case 0xba:
+                    this._impl();
+                    this._tsx();
+                    this._burn(2);
                     break;
                 case 0xbe:
                     break;
@@ -539,6 +572,9 @@
                 case 0xc6:
                     break;
                 case 0xca:
+                    this._impl();
+                    this._dex();
+                    this._burn(2);
                     break;
                 case 0xce:
                     break;
@@ -723,9 +759,8 @@
         _branch: function (cond) {
             if (cond) {
                 this.address += this._read() + 1;
-                this._burn((this.reg_pc & 0xFF00) !== (this.address & 0xFF00) ? 2 : 1);
-
                 // todo: why!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                this._burn((this.reg_pc & 0xFF00) !== (this.address & 0xFF00) ? 2 : 1);
                 this.reg_pc = this.address;
             }
         },
@@ -821,8 +856,14 @@
         _dec: function () {
         },
         _dex: function () {
+            this.reg_x = (this.reg_x - 1) & 0xff;
+            this._setN(this.reg_x);
+            this._setZ(this.reg_x);
         },
         _dey: function () {
+            this.reg_y = (this.reg_y - 1) & 0xff;
+            this._setN(this.reg_y);
+            this._setZ(this.reg_y);
         },
         _eor: function () {
             this.reg_a ^= this._read();
@@ -832,6 +873,9 @@
         _inc: function () {
         },
         _inx: function () {
+            this.reg_x = (this.reg_x + 1) & 0xff;
+            this._setN(this.reg_x);
+            this._setZ(this.reg_x);
         },
         _iny: function () {
             this.reg_y = (this.reg_y + 1) & 0xff;
@@ -939,26 +983,43 @@
             this._write(this.address, this.reg_x);
         },
         _sty: function () {
+            this._write(this.address, this.reg_y);
         },
         _tax: function () {
+            this.reg_x = this.reg_a;
+            this._setN(this.reg_x);
+            this._setZ(this.reg_x);
         },
         _tay: function () {
+            this.reg_y = this.reg_a;
+            this._setN(this.reg_y);
+            this._setZ(this.reg_y);
         },
         _tsx: function () {
+            this.reg_x = this.reg_s;
+            this._setN(this.reg_x);
+            this._setZ(this.reg_x);
         },
         _txa: function () {
+            this.reg_a = this.reg_x;
+            this._setN(this.reg_a);
+            this._setZ(this.reg_a);
         },
         _txs: function () {
+            this.reg_s = this.reg_x;
         },
         _tya: function () {
+            this.reg_a = this.reg_y;
+            this._setN(this.reg_a);
+            this._setZ(this.reg_a);
         },
 
         _pop: function () {
-            return this._peek(++this.reg_s);
+            return this._peek(++this.reg_s | 0x100);
         },
 
         _push: function (value) {
-            this._write(this.reg_s, value);
+            this._write(this.reg_s | 0x100, value);
             this.reg_s = (this.reg_s - 1) & 0xff;
         },
 
