@@ -70,6 +70,8 @@
             const regPc = this.reg_pc.toString(16);
             const log = regPc.toString(16) + '\t' + opcode.toString(16) + '\t';
             const log2 = '\t' + `A: ${this.reg_a.toString(16)} X:${this.reg_x.toString(16)} Y:${this.reg_y.toString(16)} P:${this.reg_p.toString(16)} SP:${this.reg_s.toString(16)} CYC:${this.cycles}`;
+
+            this.addrMode = null;
             switch (opcode) {
                 // ============= 00 block =============
                 case 0x00:
@@ -129,6 +131,9 @@
                 case 0x3c:
                     break;
                 case 0x40:
+                    this._impl();
+                    this._rti();
+                    this._burn(6);
                     break;
                 case 0x44:
                     break;
@@ -484,6 +489,9 @@
                 case 0x46:
                     break;
                 case 0x4a:
+                    this._a();
+                    this._lsr();
+                    this._burn(2);
                     break;
                 case 0x4e:
                     break;
@@ -745,7 +753,11 @@
         },
 
         _read: function () {
-            return this._peek(this.address);
+            if (this.addrMode === 'accumulator') {
+                return this.reg_a & 0xff;
+            } else {
+                return this._peek(this.address);
+            }
         },
 
         _peek: function (address) {
@@ -753,7 +765,11 @@
         },
 
         _write: function (address, value) {
-            this.memory.write(address, value);
+            if (this.addrMode === 'accumulator') {
+                this.reg_a = value;
+            } else {
+                this.memory.write(address, value);
+            }
         },
 
         _branch: function (cond) {
@@ -910,6 +926,12 @@
             this._setZ(this.reg_y);
         },
         _lsr: function () {
+            let val = this._read();
+            this.flag_c = val & 0x01;
+            val >>= 1;
+            this._setN(0);
+            this._setZ(val);
+            this._write(this.address, val);
         },
         _nop: function () {
 
@@ -943,6 +965,10 @@
         _rra: function () {
         },
         _rti: function () {
+            this.reg_p = this._pop();
+            const low = this._pop();
+            const high = this._pop() << 8;
+            this.reg_pc = high | low;
         },
         _rts: function () {
             const low = this._pop();
@@ -1026,7 +1052,9 @@
         // ============= addressing modes =============
         // Accumulator
         _a: function () {
-
+            this.address = this.reg_a;
+            this.addrMode = 'accumulator';
+            this.reg_pc += 1;
         },
 
         // absolute
