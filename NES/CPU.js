@@ -297,6 +297,9 @@
                     break;
                 // ============= 01 block =============
                 case 0x01:
+                    this._izx();
+                    this._ora();
+                    this._burn(6);
                     break;
                 case 0x05:
                     break;
@@ -316,6 +319,9 @@
                 case 0x1d:
                     break;
                 case 0x21:
+                    this._izx();
+                    this._and();
+                    this._burn(6);
                     break;
                 case 0x25:
                     break;
@@ -373,15 +379,21 @@
                 case 0x7d:
                     break;
                 case 0x81:
+                    this._izx();
+                    this._sta();
+                    this._burn(6);
                     break;
                 case 0x85:
                     this._zp();
                     this._sta();
-                    this._burn(3)
+                    this._burn(3);
                     break;
                 case 0x89:
                     break;
                 case 0x8d:
+                    this._abs();
+                    this._sta();
+                    this._burn(4);
                     break;
                 case 0x91:
                     break;
@@ -392,8 +404,14 @@
                 case 0x9d:
                     break;
                 case 0xa1:
+                    this._izx();
+                    this._lda();
+                    this._burn(6);
                     break;
                 case 0xa5:
+                    this._zp();
+                    this._lda();
+                    this._burn(3);
                     break;
                 case 0xa9:
                     this._imm();
@@ -457,6 +475,9 @@
                 case 0x06:
                     break;
                 case 0x0a:
+                    this._a();
+                    this._asl();
+                    this._burn(2);
                     break;
                 case 0x0e:
                     break;
@@ -473,6 +494,9 @@
                 case 0x26:
                     break;
                 case 0x2a:
+                    this._a();
+                    this._rol();
+                    this._burn(2);
                     break;
                 case 0x2e:
                     break;
@@ -508,6 +532,9 @@
                 case 0x66:
                     break;
                 case 0x6a:
+                    this._a();
+                    this._ror();
+                    this._burn(2);
                     break;
                 case 0x6e:
                     break;
@@ -800,7 +827,7 @@
             this._setN(tmp);
             this._setZ(tmp & 0xff);
             this.flag_v = !((this.reg_a ^ val) & 0x80) && !!((this.reg_a ^ tmp) & 0x80);
-            this.flag_c = (tmp > 0xff);
+            this.flag_c = +(tmp > 0xff);
             this.reg_a = tmp;
         },
         _and: function () {
@@ -809,6 +836,14 @@
             this._setZ(this.reg_a);
         },
         _asl: function () {
+            let val = this._read();
+
+            this.flag_c = +(val & 0x80);
+            val <<= 1;
+            val &= 0xff;
+            this._setN(val);
+            this._setZ(val);
+            this._write(null, val);
         },
         _bcc: function () {
             this._branch(this.flag_c === 0);
@@ -927,11 +962,11 @@
         },
         _lsr: function () {
             let val = this._read();
-            this.flag_c = val & 0x01;
+            this.flag_c = +(val & 0x01);
             val >>= 1;
-            this._setN(0);
+            this._setN(val);
             this._setZ(val);
-            this._write(this.address, val);
+            this._write(null, val);
         },
         _nop: function () {
 
@@ -959,8 +994,24 @@
         _rla: function () {
         },
         _rol: function () {
+            let val = this._read();
+            val <<= 1;
+            val = this.flag_c ? val | 0x1 : val;
+            this.flag_c = +(val > 0xff);
+            val &= 0xff;
+            this._setN(val);
+            this._setZ(val);
+            this._write(null, val);
         },
         _ror: function () {
+            let val = this._read();
+            val = this.flag_c ? val | 0x100 : val;
+
+            this.flag_c = +(val & 0x01);
+            val >>= 1;
+            this._setN(val);
+            this._setZ(val);
+            this._write(null, val);
         },
         _rra: function () {
         },
@@ -1088,15 +1139,38 @@
 
         // indirect
         _ind: function () {
+            const highAddr = this._peek(this.reg_pc + 2),
+                lowAddr = this._peek(this.reg_pc + 1);
+
+            const high = this._peek(highAddr) << 8,
+                low = this._peek(lowAddr);
+
+            this.address = high | low;
+            this.reg_pc += 3;
         },
 
         // X-indexed, indirect
         _izx: function () {
+            const lowAddr = (this._peek(this.reg_pc + 1) + this.reg_x) & 0xff,
+                highAddr = (lowAddr + 1) & 0xff;
+
+            const high = this._peek(highAddr) << 8,
+                low = this._peek(lowAddr);
+
+            this.address = high | low;
+            this.reg_pc += 2;
         },
 
         // indirect, Y-indexed
         _izy: function () {
+            const lowAddr = this._peek(this.reg_pc + 1) & 0xff,
+                highAddr = (lowAddr + 1) & 0xff;
 
+            const high = this._peek(highAddr) << 8,
+                low = this._peek(lowAddr);
+
+            this.address = (high | low) + this.reg_y;
+            this.reg_pc += 2;
         },
 
         // relative
