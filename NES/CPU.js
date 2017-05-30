@@ -192,6 +192,9 @@
                 case 0x80:
                     break;
                 case 0x84:
+                    this._zp();
+                    this._sty();
+                    this._burn(3);
                     break;
                 case 0x88:
                     this._impl();
@@ -199,6 +202,9 @@
                     this._burn(2);
                     break;
                 case 0x8c:
+                    this._abs();
+                    this._sty();
+                    this._burn(4);
                     break;
                 case 0x90:
                     this._rel();
@@ -206,6 +212,9 @@
                     this._burn(2);
                     break;
                 case 0x94:
+                    this._zpx();
+                    this._sty();
+                    this._burn(4);
                     break;
                 case 0x98:
                     this._impl();
@@ -220,6 +229,9 @@
                     this._burn(2);
                     break;
                 case 0xa4:
+                    this._zp();
+                    this._ldy();
+                    this._burn(3);
                     break;
                 case 0xa8:
                     this._impl();
@@ -227,6 +239,9 @@
                     this._burn(2);
                     break;
                 case 0xac:
+                    this._abs();
+                    this._ldy();
+                    this._burn(4);
                     break;
                 case 0xb0:
                     this._rel();
@@ -248,6 +263,9 @@
                     this._burn(2);
                     break;
                 case 0xc4:
+                    this._zp();
+                    this._cpy();
+                    this._burn(3);
                     break;
                 case 0xc8:
                     this._impl();
@@ -255,6 +273,9 @@
                     this._burn(2);
                     break;
                 case 0xcc:
+                    this._abs();
+                    this._cpy();
+                    this._burn(4);
                     break;
                 case 0xd0:
                     this._rel();
@@ -276,6 +297,9 @@
                     this._burn(2);
                     break;
                 case 0xe4:
+                    this._zp();
+                    this._cpx();
+                    this._burn(3);
                     break;
                 case 0xe8:
                     this._impl();
@@ -283,6 +307,9 @@
                     this._burn(2);
                     break;
                 case 0xec:
+                    this._abs();
+                    this._cpx();
+                    this._burn(4)
                     break;
                 case 0xf0:
                     this._rel();
@@ -345,6 +372,9 @@
                     this._burn(6);
                     break;
                 case 0x25:
+                    this._zp();
+                    this._and();
+                    this._burn(3);
                     break;
                 case 0x29:
                     this._imm();
@@ -352,14 +382,29 @@
                     this._burn(2);
                     break;
                 case 0x2d:
+                    this._abs();
+                    this._and();
+                    this._burn(4);
                     break;
                 case 0x31:
+                    this._idy();
+                    this._and();
+                    this._burn(5);
                     break;
                 case 0x35:
+                    this._zpx();
+                    this._and();
+                    this._burn(4);
                     break;
                 case 0x39:
+                    this._aby();
+                    this._and();
+                    this._burn(4);
                     break;
                 case 0x3d:
+                    this._abx();
+                    this._and();
+                    this._burn(4);
                     break;
                 case 0x41:
                     this._idx();
@@ -377,6 +422,9 @@
                     this._burn(2);
                     break;
                 case 0x4d:
+                    this._abs();
+                    this._eor();
+                    this._burn(4);
                     break;
                 case 0x51:
                     this._idy();
@@ -394,6 +442,9 @@
                     this._burn(4);
                     break;
                 case 0x5d:
+                    this._abx();
+                    this._eor();
+                    this._burn(4);
                     break;
                 case 0x61:
                     this._idx();
@@ -411,6 +462,9 @@
                     this._burn(2);
                     break;
                 case 0x6d:
+                    this._abs();
+                    this._adc();
+                    this._burn(4);
                     break;
                 case 0x71:
                     this._idy();
@@ -428,6 +482,9 @@
                     this._burn(4);
                     break;
                 case 0x7d:
+                    this._abx();
+                    this._adc();
+                    this._burn(4);
                     break;
                 case 0x81:
                     this._idx();
@@ -572,6 +629,9 @@
                 case 0x02:
                     break;
                 case 0x06:
+                    this._zp();
+                    this._asl();
+                    this._burn(5);
                     break;
                 case 0x0a:
                     this._a();
@@ -579,18 +639,30 @@
                     this._burn(2);
                     break;
                 case 0x0e:
+                    this._abs();
+                    this._asl();
+                    this._burn(6);
                     break;
                 case 0x12:
                     break;
                 case 0x16:
+                    this._zpx();
+                    this._asl();
+                    this._burn(6);
                     break;
                 case 0x1a:
                     break;
                 case 0x1e:
+                    this._abx();
+                    this._asl();
+                    this._burn(7);
                     break;
                 case 0x22:
                     break;
                 case 0x26:
+                    this._zp();
+                    this._rol();
+                    this._burn(5);
                     break;
                 case 0x2a:
                     this._a();
@@ -598,18 +670,30 @@
                     this._burn(2);
                     break;
                 case 0x2e:
+                    this._abs();
+                    this._rol();
+                    this._burn(6);
                     break;
                 case 0x32:
                     break;
                 case 0x36:
+                    this._zpx();
+                    this._rol();
+                    this._burn(6);
                     break;
                 case 0x3a:
                     break;
                 case 0x3e:
+                    this._abx();
+                    this._rol();
+                    this._burn(7);
                     break;
                 case 0x42:
                     break;
                 case 0x46:
+                    this._zp();
+                    this._lsr();
+                    this._burn(5);
                     break;
                 case 0x4a:
                     this._a();
@@ -617,18 +701,30 @@
                     this._burn(2);
                     break;
                 case 0x4e:
+                    this._abs();
+                    this._lsr();
+                    this._burn(6);
                     break;
                 case 0x52:
                     break;
                 case 0x56:
+                    this._zpx();
+                    this._lsr();
+                    this._burn(6);
                     break;
                 case 0x5a:
                     break;
                 case 0x5e:
+                    this._abx();
+                    this._lsr();
+                    this._burn(7);
                     break;
                 case 0x62:
                     break;
                 case 0x66:
+                    this._zp();
+                    this._ror();
+                    this._burn(5);
                     break;
                 case 0x6a:
                     this._a();
@@ -636,14 +732,23 @@
                     this._burn(2);
                     break;
                 case 0x6e:
+                    this._abs();
+                    this._ror();
+                    this._burn(6);
                     break;
                 case 0x72:
                     break;
                 case 0x76:
+                    this._zpx();
+                    this._ror();
+                    this._burn(6);
                     break;
                 case 0x7a:
                     break;
                 case 0x7e:
+                    this._abx();
+                    this._ror();
+                    this._burn(7);
                     break;
                 case 0x82:
                     break;
@@ -679,6 +784,9 @@
                     this._burn(2);
                     break;
                 case 0xa6:
+                    this._zp();
+                    this._ldx();
+                    this._burn(3);
                     break;
                 case 0xaa:
                     this._impl();
@@ -693,6 +801,9 @@
                 case 0xb2:
                     break;
                 case 0xb6:
+                    this._zpy();
+                    this._ldx();
+                    this._burn(4);
                     break;
                 case 0xba:
                     this._impl();
@@ -700,10 +811,16 @@
                     this._burn(2);
                     break;
                 case 0xbe:
+                    this._aby();
+                    this._ldx();
+                    this._burn(4);
                     break;
                 case 0xc2:
                     break;
                 case 0xc6:
+                    this._zp();
+                    this._dec();
+                    this._burn(5);
                     break;
                 case 0xca:
                     this._impl();
@@ -711,18 +828,30 @@
                     this._burn(2);
                     break;
                 case 0xce:
+                    this._abs();
+                    this._dec();
+                    this._burn(6);
                     break;
                 case 0xd2:
                     break;
                 case 0xd6:
+                    this._zpx();
+                    this._dec();
+                    this._burn(6);
                     break;
                 case 0xda:
                     break;
                 case 0xde:
+                    this._abx();
+                    this._dec();
+                    this._burn(7);
                     break;
                 case 0xe2:
                     break;
                 case 0xe6:
+                    this._zp();
+                    this._inc();
+                    this._burn(5);
                     break;
                 case 0xea:
                     this._impl();
@@ -730,14 +859,23 @@
                     this._burn(2);
                     break;
                 case 0xee:
+                    this._abs();
+                    this._inc();
+                    this._burn(6);
                     break;
                 case 0xf2:
                     break;
                 case 0xf6:
+                    this._zpx();
+                    this._inc();
+                    this._burn(6);
                     break;
                 case 0xfa:
                     break;
                 case 0xfe:
+                    this._abx();
+                    this._inc();
+                    this._burn(7);
                     break;
                 // ============= 11 block =============
                 case 0x03:
@@ -893,8 +1031,10 @@
         _write: function (address, value) {
             if (this.addrMode === 'accumulator') {
                 this.reg_a = value;
-            } else {
+            } else if (address !== undefined) {
                 this.memory.write(address, value);
+            } else {
+                throw new Error('invalid address: ', address);
             }
         },
 
@@ -942,7 +1082,7 @@
             val &= 0xff;
             this._setN(val);
             this._setZ(val);
-            this._write(null, val);
+            this._write(this.address, val);
         },
         _bcc: function () {
             this._branch(this.flag_c === 0);
@@ -1004,6 +1144,10 @@
         _dcp: function () {
         },
         _dec: function () {
+            const val = (this._read() - 1) & 0xff;
+            this._setN(val);
+            this._setZ(val);
+            this._write(this.address, val);
         },
         _dex: function () {
             this.reg_x = (this.reg_x - 1) & 0xff;
@@ -1021,6 +1165,10 @@
             this._setZ(this.reg_a);
         },
         _inc: function () {
+            const val = (this._read() + 1 ) & 0xff;
+            this._write(this.address, val);
+            this._setN(val);
+            this._setZ(val);
         },
         _inx: function () {
             this.reg_x = (this.reg_x + 1) & 0xff;
@@ -1065,7 +1213,7 @@
             val >>= 1;
             this._setN(val);
             this._setZ(val);
-            this._write(null, val);
+            this._write(this.address, val);
         },
         _nop: function () {
 
@@ -1100,7 +1248,7 @@
             val &= 0xff;
             this._setN(val);
             this._setZ(val);
-            this._write(null, val);
+            this._write(this.address, val);
         },
         _ror: function () {
             let val = this._read();
@@ -1110,7 +1258,7 @@
             val >>= 1;
             this._setN(val);
             this._setZ(val);
-            this._write(null, val);
+            this._write(this.address, val);
         },
         _rra: function () {
         },
