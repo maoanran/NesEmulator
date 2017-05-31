@@ -174,6 +174,9 @@
                     this._burn(4);
                     break;
                 case 0x6c:
+                    this._ind();
+                    this._jmp();
+                    this._burn(5);
                     break;
                 case 0x70:
                     this._rel();
@@ -514,6 +517,9 @@
                     this._burn(4);
                     break;
                 case 0x99:
+                    this._aby();
+                    this._sta();
+                    this._burn(5);
                     break;
                 case 0x9d:
                     break;
@@ -538,12 +544,24 @@
                     this._burn(4);
                     break;
                 case 0xb1:
+                    this._idy();
+                    this._lda();
+                    this._burn(5);
                     break;
                 case 0xb5:
+                    this._zpx();
+                    this._lda();
+                    this._burn(4);
                     break;
                 case 0xb9:
+                    this._aby();
+                    this._lda();
+                    this._burn(4);
                     break;
                 case 0xbd:
+                    this._abx();
+                    this._lda();
+                    this._burn(4);
                     break;
                 case 0xc1:
                     this._idx();
@@ -1020,12 +1038,18 @@
             if (this.addrMode === 'accumulator') {
                 return this.reg_a & 0xff;
             } else {
-                return this._peek(this.address);
+                return this._peek(this.address & 0xffff);
             }
         },
 
         _peek: function (address) {
             return this.memory.read(address);
+        },
+
+        _peek16: function (address) {
+            const low = this._peek(address),
+                high = this._peek((address + 1) & 0xffff) << 8;
+            return (low | high);
         },
 
         _write: function (address, value) {
@@ -1065,7 +1089,7 @@
             const tmp = this.reg_a + val + (this.flag_c ? 1 : 0);
             this._setN(tmp);
             this._setZ(tmp & 0xff);
-            this.flag_v = !((this.reg_a ^ val) & 0x80) && !!((this.reg_a ^ tmp) & 0x80);
+            this.flag_v = +(!((this.reg_a ^ val) & 0x80) && !!((this.reg_a ^ tmp) & 0x80));
             this.flag_c = +(tmp > 0xff);
             this.reg_a = tmp;
         },
@@ -1283,7 +1307,7 @@
             this._setZ(tmp & 0xff);
             // this.flag_v = !((this.reg_a ^ tmp) & 0x80) && !!((this.reg_a ^ val) & 0x80);
             // todo: why ??
-            this.flag_v = ((((this.reg_a ^ tmp) & 0x80) != 0 && ((this.reg_a ^ val) & 0x80) != 0) ? 1 : 0);
+            this.flag_v = (((this.reg_a ^ tmp) & 0x80) !== 0 && ((this.reg_a ^ val) & 0x80) !== 0) ? 1 : 0;
             this.flag_c = tmp < 0x00 ? 0 : 1;
             this.reg_a = tmp & 0xff;
         },
@@ -1369,6 +1393,9 @@
             const high = this._peek(this.reg_pc + 2) << 8,
                 low = this._peek(this.reg_pc + 1);
 
+            if ((low + this.reg_x) & 0xff00) {
+                this._burn(1);
+            }
             this.address = (high | low) + this.reg_x;
             this.reg_pc += 3;
         },
@@ -1378,6 +1405,9 @@
             const high = this._peek(this.reg_pc + 2) << 8,
                 low = this._peek(this.reg_pc + 1);
 
+            if ((low + this.reg_y) & 0xff00) {
+                this._burn(1);
+            }
             this.address = (high | low) + this.reg_y;
             this.reg_pc += 3;
         },
@@ -1398,9 +1428,10 @@
         _ind: function () {
             const highAddr = this._peek(this.reg_pc + 2),
                 lowAddr = this._peek(this.reg_pc + 1);
+            const addr = (highAddr << 8) | lowAddr;
 
-            const high = this._peek(highAddr) << 8,
-                low = this._peek(lowAddr);
+            const low = this._peek(addr),
+                high = this._peek((addr + 1) & 0x00ff | (addr & 0xff00)) << 8;
 
             this.address = high | low;
             this.reg_pc += 3;
@@ -1408,11 +1439,16 @@
 
         // X-indexed, indirect
         _idx: function () {
-            const lowAddr = (this._peek(this.reg_pc + 1) + this.reg_x) & 0xff,
+            const val = this._peek(this.reg_pc + 1);
+            const lowAddr = (val + this.reg_x) & 0xff,
                 highAddr = (lowAddr + 1) & 0xff;
 
             const high = this._peek(highAddr) << 8,
                 low = this._peek(lowAddr);
+
+            if ((val & 0xff00) !== ((val + this.reg_x) & 0xff00)) {
+                this._burn(1);
+            }
 
             this.address = high | low;
             this.reg_pc += 2;
@@ -1420,12 +1456,16 @@
 
         // indirect, Y-indexed
         _idy: function () {
-            const lowAddr = this._peek(this.reg_pc + 1) & 0xff,
+            const val = this._peek(this.reg_pc + 1);
+            const lowAddr = val & 0xff,
                 highAddr = (lowAddr + 1) & 0xff;
 
             const high = this._peek(highAddr) << 8,
                 low = this._peek(lowAddr);
 
+            if ((val & 0xff00) !== ((val + this.reg_y) & 0xff00)) {
+                this._burn(1);
+            }
             this.address = (high | low) + this.reg_y;
             this.reg_pc += 2;
         },
