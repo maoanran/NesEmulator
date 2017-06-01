@@ -252,6 +252,9 @@
                     this._burn(2);
                     break;
                 case 0xb4:
+                    this._zpx();
+                    this._ldy();
+                    this._burn(4);
                     break;
                 case 0xb8:
                     this._impl();
@@ -259,6 +262,9 @@
                     this._burn(2);
                     break;
                 case 0xbc:
+                    this._abx();
+                    this._ldy();
+                    this._burn(4);
                     break;
                 case 0xc0:
                     this._imm();
@@ -357,7 +363,7 @@
                 case 0x15:
                     this._zpx();
                     this._ora();
-                    this._burn(3);
+                    this._burn(4);
                     break;
                 case 0x19:
                     this._aby();
@@ -1010,8 +1016,7 @@
                     break;
                 case 0xe3:
                     break;
-                case 0xe7:
-                    break;
+                  break;
                 case 0xeb:
                     break;
                 case 0xef:
@@ -1478,19 +1483,19 @@
 
         // zeropage
         _zp: function () {
-            this.address = this._peek(this.reg_pc + 1);
+            this.address = this._peek(this.reg_pc + 1) & 0xff;
             this.reg_pc += 2;
         },
 
         // zeropage, X-indexed
         _zpx: function () {
-            this.address = this._peek(this.reg_pc + 1 + this.reg_x);
+            this.address = (this._peek(this.reg_pc + 1) + this.reg_x) & 0xff;
             this.reg_pc += 2;
         },
 
         // zeropage, Y-indexed
         _zpy: function () {
-            this.address = this._peek(this.reg_pc + 1 + this.reg_y);
+            this.address = (this._peek(this.reg_pc + 1) + this.reg_y) & 0xff;
             this.reg_pc += 2;
         },
 
