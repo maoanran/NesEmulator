@@ -19,7 +19,7 @@
             this.cpu.powerUp();
 
             let i = 0;
-            while (i++ < 4000) {
+            while (i++ < 6000) {
                 this.cpu.tick();
 
                 this.ppu.tick();

@@ -523,11 +523,14 @@
                     this._burn(4);
                     break;
                 case 0x99:
-                    this._aby();
+                    this._aby(false);
                     this._sta();
                     this._burn(5);
                     break;
                 case 0x9d:
+                    this._abx(false);
+                    this._sta();
+                    this._burn(5);
                     break;
                 case 0xa1:
                     this._idx();
@@ -677,7 +680,7 @@
                 case 0x1a:
                     break;
                 case 0x1e:
-                    this._abx();
+                    this._abx(false);
                     this._asl();
                     this._burn(7);
                     break;
@@ -708,7 +711,7 @@
                 case 0x3a:
                     break;
                 case 0x3e:
-                    this._abx();
+                    this._abx(false);
                     this._rol();
                     this._burn(7);
                     break;
@@ -739,7 +742,7 @@
                 case 0x5a:
                     break;
                 case 0x5e:
-                    this._abx();
+                    this._abx(false);
                     this._lsr();
                     this._burn(7);
                     break;
@@ -770,7 +773,7 @@
                 case 0x7a:
                     break;
                 case 0x7e:
-                    this._abx();
+                    this._abx(false);
                     this._ror();
                     this._burn(7);
                     break;
@@ -794,6 +797,9 @@
                 case 0x92:
                     break;
                 case 0x96:
+                    this._zpy();
+                    this._stx();
+                    this._burn(4);
                     break;
                 case 0x9a:
                     this._impl();
@@ -866,7 +872,7 @@
                 case 0xda:
                     break;
                 case 0xde:
-                    this._abx();
+                    this._abx(false);
                     this._dec();
                     this._burn(7);
                     break;
@@ -897,7 +903,7 @@
                 case 0xfa:
                     break;
                 case 0xfe:
-                    this._abx();
+                    this._abx(false);
                     this._inc();
                     this._burn(7);
                     break;
@@ -1394,11 +1400,11 @@
         },
 
         // absolute, X-indexed
-        _abx: function () {
+        _abx: function (enableBurn = true) {
             const high = this._peek(this.reg_pc + 2) << 8,
                 low = this._peek(this.reg_pc + 1);
 
-            if ((low + this.reg_x) & 0xff00) {
+            if (enableBurn && ((low + this.reg_x) & 0xff00)) {
                 this._burn(1);
             }
             this.address = (high | low) + this.reg_x;
@@ -1406,11 +1412,11 @@
         },
 
         // absolute, Y-indexed
-        _aby: function () {
+        _aby: function (enableBurn = true) {
             const high = this._peek(this.reg_pc + 2) << 8,
                 low = this._peek(this.reg_pc + 1);
 
-            if ((low + this.reg_y) & 0xff00) {
+            if (enableBurn && ((low + this.reg_y) & 0xff00)) {
                 this._burn(1);
             }
             this.address = (high | low) + this.reg_y;
