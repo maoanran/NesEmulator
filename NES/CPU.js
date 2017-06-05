@@ -77,6 +77,9 @@
                 case 0x00:
                     break;
                 case 0x04:
+                    this._zp();
+                    this._nop();
+                    this._burn(3);
                     break;
                 case 0x08:
                     this._impl();
@@ -84,6 +87,9 @@
                     this._burn(3);
                     break;
                 case 0x0c:
+                    this._abs();
+                    this._nop();
+                    this._burn(4);
                     break;
                 case 0x10:
                     this._rel();
@@ -91,6 +97,9 @@
                     this._burn(2);
                     break;
                 case 0x14:
+                    this._zpx();
+                    this._nop();
+                    this._burn(4);
                     break;
                 case 0x18:
                     this._impl();
@@ -98,6 +107,9 @@
                     this._burn(2);
                     break;
                 case 0x1c:
+                    this._abx();
+                    this._nop();
+                    this._burn(4);
                     break;
                 case 0x20:
                     this._abs();
@@ -125,6 +137,9 @@
                     this._burn(2);
                     break;
                 case 0x34:
+                    this._zpx();
+                    this._nop();
+                    this._burn(4);
                     break;
                 case 0x38:
                     this._impl();
@@ -132,6 +147,9 @@
                     this._burn(2);
                     break;
                 case 0x3c:
+                    this._abx();
+                    this._nop();
+                    this._burn(4);
                     break;
                 case 0x40:
                     this._impl();
@@ -139,6 +157,9 @@
                     this._burn(6);
                     break;
                 case 0x44:
+                    this._zp();
+                    this._nop();
+                    this._burn(3);
                     break;
                 case 0x48:
                     this._impl();
@@ -156,10 +177,16 @@
                     this._burn(2);
                     break;
                 case 0x54:
+                    this._zpx();
+                    this._nop();
+                    this._burn(4);
                     break;
                 case 0x58:
                     break;
                 case 0x5c:
+                    this._abx();
+                    this._nop();
+                    this._burn(4);
                     break;
                 case 0x60:
                     this._impl();
@@ -167,6 +194,9 @@
                     this._burn(6);
                     break;
                 case 0x64:
+                    this._zp();
+                    this._nop();
+                    this._burn(3);
                     break;
                 case 0x68:
                     this._impl();
@@ -184,6 +214,9 @@
                     this._burn(2);
                     break;
                 case 0x74:
+                    this._zpx();
+                    this._nop();
+                    this._burn(4);
                     break;
                 case 0x78:
                     this._impl();
@@ -191,8 +224,14 @@
                     this._burn(2);
                     break;
                 case 0x7c:
+                    this._abx();
+                    this._nop();
+                    this._burn(4);
                     break;
                 case 0x80:
+                    this._imm();
+                    this._nop();
+                    this._burn(2);
                     break;
                 case 0x84:
                     this._zp();
@@ -292,6 +331,9 @@
                     this._burn(2);
                     break;
                 case 0xd4:
+                    this._zpx();
+                    this._nop();
+                    this._burn(4);
                     break;
                 case 0xd8:
                     this._impl();
@@ -299,6 +341,9 @@
                     this._burn(2);
                     break;
                 case 0xdc:
+                    this._abx();
+                    this._nop();
+                    this._burn(4);
                     break;
                 case 0xe0:
                     this._imm();
@@ -326,6 +371,9 @@
                     this._burn(2);
                     break;
                 case 0xf4:
+                    this._zpx();
+                    this._nop();
+                    this._burn(4);
                     break;
                 case 0xf8:
                     this._impl();
@@ -333,6 +381,9 @@
                     this._burn(2);
                     break;
                 case 0xfc:
+                    this._abx();
+                    this._nop();
+                    this._burn(4);
                     break;
                 // ============= 01 block =============
                 case 0x01:
@@ -506,6 +557,9 @@
                     this._burn(3);
                     break;
                 case 0x89:
+                    this._imm();
+                    this._nop();
+                    this._burn(2);
                     break;
                 case 0x8d:
                     this._abs();
@@ -678,6 +732,9 @@
                     this._burn(6);
                     break;
                 case 0x1a:
+                    this._a();
+                    this._nop();
+                    this._burn(2);
                     break;
                 case 0x1e:
                     this._abx(false);
@@ -709,6 +766,9 @@
                     this._burn(6);
                     break;
                 case 0x3a:
+                    this._a();
+                    this._nop();
+                    this._burn(2);
                     break;
                 case 0x3e:
                     this._abx(false);
@@ -740,6 +800,9 @@
                     this._burn(6);
                     break;
                 case 0x5a:
+                    this._a();
+                    this._nop();
+                    this._burn(2);
                     break;
                 case 0x5e:
                     this._abx(false);
@@ -771,6 +834,9 @@
                     this._burn(6);
                     break;
                 case 0x7a:
+                    this._a();
+                    this._nop();
+                    this._burn(2);
                     break;
                 case 0x7e:
                     this._abx(false);
@@ -778,6 +844,9 @@
                     this._burn(7);
                     break;
                 case 0x82:
+                    this._imm();
+                    this._nop();
+                    this._burn(2);
                     break;
                 case 0x86:
                     this._zp();
@@ -846,6 +915,9 @@
                     this._burn(4);
                     break;
                 case 0xc2:
+                    this._imm();
+                    this._nop();
+                    this._burn(2);
                     break;
                 case 0xc6:
                     this._zp();
@@ -870,6 +942,9 @@
                     this._burn(6);
                     break;
                 case 0xda:
+                    this._a();
+                    this._nop();
+                    this._burn(2);
                     break;
                 case 0xde:
                     this._abx(false);
@@ -877,6 +952,9 @@
                     this._burn(7);
                     break;
                 case 0xe2:
+                    this._imm();
+                    this._nop();
+                    this._burn(2);
                     break;
                 case 0xe6:
                     this._zp();
@@ -901,6 +979,9 @@
                     this._burn(6);
                     break;
                 case 0xfa:
+                    this._impl();
+                    this._nop();
+                    this._burn(2);
                     break;
                 case 0xfe:
                     this._abx(false);
@@ -973,6 +1054,9 @@
                 case 0x7f:
                     break;
                 case 0x83:
+                    this._imm();
+                    this._nop();
+                    this._burn(2);
                     break;
                 case 0x87:
                     break;
@@ -1075,7 +1159,8 @@
 
         _branch: function (cond) {
             if (cond) {
-                this.address += this._read() + 1;
+                let val = this._read();
+                this.address = (val & 0x80) ? this.address - (~val & 0xff) : this.address + val + 1;
                 // todo: why!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 this._burn((this.reg_pc & 0xFF00) !== (this.address & 0xFF00) ? 2 : 1);
                 this.reg_pc = this.address;
