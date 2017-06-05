@@ -1073,6 +1073,9 @@
                 case 0x9f:
                     break;
                 case 0xa3:
+                    // this._inx();
+                    // this._lax();
+                    // this._burn(6);
                     break;
                 case 0xa7:
                     break;
@@ -1121,7 +1124,7 @@
                     break;
                 default:
             }
-            console.log(log + pad(4, this.address.toString(16), ' ') + log2);
+            // console.log(log + pad(4, this.address.toString(16), ' ') + log2);
         },
 
         _burn: function (cyc) {
